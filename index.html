@@ -3,83 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Athletics Schedule</title>
+    <title>Santa Fe Chiefs - Athletics Schedule</title>
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
+        /* --- SCHOOL COLOR VARIABLES --- */
+        /* Change these hex codes to match the exact Chiefs colors */
+        :root {
+            --chiefs-red: #C8102E; 
+            --chiefs-black: #000000;
+            --chiefs-white: #FFFFFF;
+            --page-bg: #f4f4f9;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: var(--page-bg);
+            color: var(--chiefs-black);
         }
 
         .controls-container {
+            background: var(--chiefs-white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-top: 5px solid var(--chiefs-red); /* School color accent */
+        }
+
+        .controls-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
         }
 
-        select, button {
+        /* Checkbox Grid for Multi-Select */
+        .checkbox-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-grid label {
+            cursor: pointer;
+            background: #eee;
+            padding: 8px 12px;
+            border-radius: 4px;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .checkbox-grid label:hover {
+            background: #ddd;
+        }
+
+        .action-btn {
+            background-color: var(--chiefs-red);
+            color: var(--chiefs-white);
             padding: 10px 15px;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            background-color: #0056b3;
-            color: white;
-            cursor: pointer;
             border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
-        button:hover {
-            background-color: #004494;
+        .action-btn:hover {
+            background-color: #9e0c24; /* Darker red on hover */
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding: 20px;
+            background: var(--chiefs-red);
+            color: var(--chiefs-white);
+            font-weight: bold;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
         }
 
         #calendar {
-            background: white;
+            background: var(--chiefs-white);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* --- PRINT STYLES --- */
-        /* These rules only apply when the user hits Ctrl+P or clicks Print */
+        /* FullCalendar styling overrides to match school colors */
+        .fc .fc-list-event:hover td {
+            background-color: #fcebeb; /* Light red hover on rows */
+        }
+        .fc .fc-list-day-cushion {
+            background-color: var(--chiefs-black) !important;
+            color: var(--chiefs-white) !important;
+        }
+
         @media print {
-            body {
-                margin: 0;
-                background-color: white;
-            }
-            .controls-container {
-                display: none; /* Hide the dropdown and print button on the paper */
-            }
-            #calendar {
-                box-shadow: none;
-                padding: 0;
-            }
-            /* Hide the FullCalendar header (prev/next arrows) when printing */
-            .fc-header-toolbar {
-                display: none !important; 
-            }
+            body { margin: 0; background-color: white; }
+            .controls-container, #loadingOverlay { display: none !important; }
+            #calendar { box-shadow: none; padding: 0; }
+            .fc-header-toolbar { display: none !important; }
+            .fc .fc-list-day-cushion { background-color: #ddd !important; color: black !important; }
         }
     </style>
 </head>
 <body>
 
     <div class="controls-container">
-        <div>
-            <label for="sportFilter"><strong>Filter by Sport: </strong></label>
-            <select id="sportFilter">
-                <option value="all">All Sports (Master Schedule)</option>
-                 <option value="JH Football">JH Football</option>
+        <div class="controls-header">
+            <h2 style="margin: 0;">Athletics Filter</h2>
+            <button class="action-btn" onclick="window.print()">🖨️ Print Schedule</button>
+        </div>
+        
+        <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view. Uncheck all to load the master schedule.</p>
+        
+        <div class="checkbox-grid" id="sportCheckboxes">
+             <option value="JH Football">JH Football</option>
                 <option value="HS Football">HS Football</option>
                 <option value="JH Volleyball">JH Volleyball</option>
                 <option value="HS Volleyball">HS Volleyball</option>
@@ -89,50 +143,74 @@
                 <option value="HS Track">Varsity Track</option>
                 <option value="Softball">Softball</option>
                 <option value="Baseball">Baseball</option>
-            </select>
         </div>
-        <button onclick="window.print()">🖨️ Print Schedule</button>
     </div>
+
+    <div id="loadingOverlay">⏳ Syncing latest schedule data...</div>
 
     <div id="calendar"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
-            const sportFilter = document.getElementById('sportFilter');
+            const loadingOverlay = document.getElementById('loadingOverlay');
             
             // 🚨 REPLACE THIS WITH YOUR NEW APPS SCRIPT WEB APP URL 🚨
             const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwpoN7Wb7oRgHixmKzVGZtccOurTQQL85CzhCqp2l9Nyf0mCukVsfsHILatH2JBjhDeJA/exec';
 
-            // Initialize the Calendar in "List Only" mode
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'listYear', // Displays a top-to-bottom list
-                height: 'auto', // Prevents internal scrollbars so it prints nicely
+                // Creates a custom view that lasts 2 years to capture the entire season layout
+                views: {
+                    listTwoYear: {
+                        type: 'list',
+                        duration: { years: 2 } 
+                    }
+                },
+                initialView: 'listTwoYear',
+                height: 'auto', 
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: '' // Leaving this empty removes the month/week view buttons completely
+                    right: '' 
                 },
-                events: PROXY_URL, // Load the master schedule on first load
-                noEventsText: 'No games scheduled for this timeframe.',
+                events: PROXY_URL, 
+                noEventsText: 'No games scheduled for the selected filters.',
+                
+                // Trigger the loading overlay dynamically
+                loading: function(isLoading) {
+                    if (isLoading) {
+                        loadingOverlay.style.display = 'block';
+                    } else {
+                        loadingOverlay.style.display = 'none';
+                    }
+                }
             });
 
             calendar.render();
 
-            // --- FILTER LOGIC ---
-            // Listen for changes on the dropdown menu
-            sportFilter.addEventListener('change', function() {
-                const selectedSport = this.value;
-                let fetchUrl = PROXY_URL;
-                
-                // If a specific sport is chosen, append the query parameter for your Apps Script
-                if (selectedSport !== 'all') {
-                    fetchUrl += '?sport=' + encodeURIComponent(selectedSport);
-                }
+            // --- MULTI-FILTER LOGIC ---
+            const checkboxes = document.querySelectorAll('.sport-filter');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    
+                    // Gather all currently checked boxes
+                    const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
+                    
+                    // Extract their values into an array
+                    let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
+                    
+                    let fetchUrl = PROXY_URL;
+                    
+                    // If any boxes are checked, join them with commas and append to URL
+                    if (selectedSports.length > 0) {
+                        fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
+                    }
 
-                // Swap out the data source in the calendar
-                calendar.removeAllEventSources();
-                calendar.addEventSource(fetchUrl);
+                    // Tell FullCalendar to dump old data and fetch the newly filtered list
+                    calendar.removeAllEventSources();
+                    calendar.addEventSource(fetchUrl);
+                });
             });
         });
     </script>
