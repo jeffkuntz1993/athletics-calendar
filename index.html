@@ -133,17 +133,17 @@
         <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view. Uncheck all to load the master schedule.</p>
         
         <div class="checkbox-grid" id="sportCheckboxes">
-             <option value="JH Football">JH Football</option>
-                <option value="HS Football">HS Football</option>
-                <option value="JH Volleyball">JH Volleyball</option>
-                <option value="HS Volleyball">HS Volleyball</option>
-                <option value="JH Basketball">JH Basketball</option>
-                <option value="HS Basketball">HS Basketball</option>
-                <option value="JH Track">JH Track</option>
-                <option value="HS Track">Varsity Track</option>
-                <option value="Softball">Softball</option>
-                <option value="Baseball">Baseball</option>
-        </div>
+        <label><input type="checkbox" value="JH Football" class="sport-filter"> JH Football</label>
+        <label><input type="checkbox" value="HS Football" class="sport-filter"> HS Football</label>
+        <label><input type="checkbox" value="JH Volleyball" class="sport-filter"> JH Volleyball</label>
+        <label><input type="checkbox" value="HS Volleyball" class="sport-filter"> HS Volleyball</label>
+        <label><input type="checkbox" value="JH Basketball" class="sport-filter"> JH Basketball</label>
+        <label><input type="checkbox" value="HS Basketball" class="sport-filter"> HS Basketball</label>
+        <label><input type="checkbox" value="JH Track" class="sport-filter"> JH Track</label>
+        <label><input type="checkbox" value="HS Track" class="sport-filter"> Varsity Track</label>
+        <label><input type="checkbox" value="Softball" class="sport-filter"> Softball</label>
+        <label><input type="checkbox" value="Baseball" class="sport-filter"> Baseball</label>
+    </div>
     </div>
 
     <div id="loadingOverlay">⏳ Syncing latest schedule data...</div>
@@ -188,28 +188,49 @@
 
             calendar.render();
 
-            // --- MULTI-FILTER LOGIC ---
-            const checkboxes = document.querySelectorAll('.sport-filter');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    
-                    // Gather all currently checked boxes
+                            // --- MULTI-FILTER LOGIC WITH TOGGLE ALL ---
+                const checkboxes = document.querySelectorAll('.sport-filter');
+                const toggleAllBtn = document.getElementById('toggleAllBtn');
+                
+                // Function to calculate selected sports and reload calendar data
+                function updateCalendarSource() {
                     const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
-                    
-                    // Extract their values into an array
                     let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
-                    
                     let fetchUrl = PROXY_URL;
                     
-                    // If any boxes are checked, join them with commas and append to URL
                     if (selectedSports.length > 0) {
                         fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
                     }
-
-                    // Tell FullCalendar to dump old data and fetch the newly filtered list
+                
                     calendar.removeAllEventSources();
                     calendar.addEventSource(fetchUrl);
+                
+                    // Dynamic label update for the Master Toggle button
+                    if (checkedBoxes.length === checkboxes.length) {
+                        toggleAllBtn.textContent = "Unselect All";
+                    } else {
+                        toggleAllBtn.textContent = "Select All";
+                    }
+                }
+                
+                // 1. Listen for individual checkbox changes
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', updateCalendarSource);
+                });
+                
+                // 2. Listen for the Master Toggle Button click
+                toggleAllBtn.addEventListener('click', function() {
+                    // Determine if we should check everything or uncheck everything
+                    // If some or none are checked, we select all. If all are checked, we unselect all.
+                    const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
+                    const shouldCheckAll = checkedBoxes.length < checkboxes.length;
+                
+                    checkboxes.forEach(cb => {
+                        cb.checked = shouldCheckAll;
+                    });
+                
+                    // Run the filter update once for the entire batch change
+                    updateCalendarSource();
                 });
             });
         });
