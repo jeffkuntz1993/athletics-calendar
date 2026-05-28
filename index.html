@@ -9,7 +9,6 @@
 
     <style>
         /* --- SCHOOL COLOR VARIABLES --- */
-        /* Change these hex codes to match the exact Chiefs colors */
         :root {
             --chiefs-red: #C8102E; 
             --chiefs-black: #000000;
@@ -30,7 +29,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            border-top: 5px solid var(--chiefs-red); /* School color accent */
+            border-top: 5px solid var(--chiefs-red);
         }
 
         .controls-header {
@@ -74,12 +73,12 @@
         }
 
         .action-btn:hover {
-            background-color: #9e0c24; /* Darker red on hover */
+            background-color: #9e0c24;
         }
 
         /* Loading Overlay */
         #loadingOverlay {
-            display: none; /* Hidden by default */
+            display: none;
             text-align: center;
             padding: 20px;
             background: var(--chiefs-red);
@@ -104,9 +103,8 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* FullCalendar styling overrides to match school colors */
         .fc .fc-list-event:hover td {
-            background-color: #fcebeb; /* Light red hover on rows */
+            background-color: #fcebeb;
         }
         .fc .fc-list-day-cushion {
             background-color: var(--chiefs-black) !important;
@@ -132,18 +130,22 @@
         
         <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view. Uncheck all to load the master schedule.</p>
         
+        <div style="margin-bottom: 15px;">
+            <button type="button" id="toggleAllBtn" class="action-btn" style="background-color: var(--chiefs-black); padding: 6px 12px; font-size: 14px;">Select All</button>
+        </div>
+        
         <div class="checkbox-grid" id="sportCheckboxes">
-        <label><input type="checkbox" value="JH Football" class="sport-filter"> JH Football</label>
-        <label><input type="checkbox" value="HS Football" class="sport-filter"> HS Football</label>
-        <label><input type="checkbox" value="JH Volleyball" class="sport-filter"> JH Volleyball</label>
-        <label><input type="checkbox" value="HS Volleyball" class="sport-filter"> HS Volleyball</label>
-        <label><input type="checkbox" value="JH Basketball" class="sport-filter"> JH Basketball</label>
-        <label><input type="checkbox" value="HS Basketball" class="sport-filter"> HS Basketball</label>
-        <label><input type="checkbox" value="JH Track" class="sport-filter"> JH Track</label>
-        <label><input type="checkbox" value="HS Track" class="sport-filter"> Varsity Track</label>
-        <label><input type="checkbox" value="Softball" class="sport-filter"> Softball</label>
-        <label><input type="checkbox" value="Baseball" class="sport-filter"> Baseball</label>
-    </div>
+            <label><input type="checkbox" value="JH Football" class="sport-filter"> JH Football</label>
+            <label><input type="checkbox" value="HS Football" class="sport-filter"> HS Football</label>
+            <label><input type="checkbox" value="JH Volleyball" class="sport-filter"> JH Volleyball</label>
+            <label><input type="checkbox" value="HS Volleyball" class="sport-filter"> HS Volleyball</label>
+            <label><input type="checkbox" value="JH Basketball" class="sport-filter"> JH Basketball</label>
+            <label><input type="checkbox" value="HS Basketball" class="sport-filter"> HS Basketball</label>
+            <label><input type="checkbox" value="JH Track" class="sport-filter"> JH Track</label>
+            <label><input type="checkbox" value="HS Track" class="sport-filter"> Varsity Track</label>
+            <label><input type="checkbox" value="Softball" class="sport-filter"> Softball</label>
+            <label><input type="checkbox" value="Baseball" class="sport-filter"> Baseball</label>
+        </div>
     </div>
 
     <div id="loadingOverlay">⏳ Syncing latest schedule data...</div>
@@ -155,11 +157,9 @@
             const calendarEl = document.getElementById('calendar');
             const loadingOverlay = document.getElementById('loadingOverlay');
             
-            // 🚨 REPLACE THIS WITH YOUR NEW APPS SCRIPT WEB APP URL 🚨
             const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwpoN7Wb7oRgHixmKzVGZtccOurTQQL85CzhCqp2l9Nyf0mCukVsfsHILatH2JBjhDeJA/exec';
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                // Creates a custom view that lasts 2 years to capture the entire season layout
                 views: {
                     listTwoYear: {
                         type: 'list',
@@ -176,7 +176,6 @@
                 events: PROXY_URL, 
                 noEventsText: 'No games scheduled for the selected filters.',
                 
-                // Trigger the loading overlay dynamically
                 loading: function(isLoading) {
                     if (isLoading) {
                         loadingOverlay.style.display = 'block';
@@ -188,52 +187,44 @@
 
             calendar.render();
 
-                            // --- MULTI-FILTER LOGIC WITH TOGGLE ALL ---
-                const checkboxes = document.querySelectorAll('.sport-filter');
-                const toggleAllBtn = document.getElementById('toggleAllBtn');
+            // --- MULTI-FILTER LOGIC WITH TOGGLE ALL ---
+            const checkboxes = document.querySelectorAll('.sport-filter');
+            const toggleAllBtn = document.getElementById('toggleAllBtn');
+            
+            function updateCalendarSource() {
+                const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
+                let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
+                let fetchUrl = PROXY_URL;
                 
-                // Function to calculate selected sports and reload calendar data
-                function updateCalendarSource() {
-                    const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
-                    let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
-                    let fetchUrl = PROXY_URL;
-                    
-                    if (selectedSports.length > 0) {
-                        fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
-                    }
-                
-                    calendar.removeAllEventSources();
-                    calendar.addEventSource(fetchUrl);
-                
-                    // Dynamic label update for the Master Toggle button
-                    if (checkedBoxes.length === checkboxes.length) {
-                        toggleAllBtn.textContent = "Unselect All";
-                    } else {
-                        toggleAllBtn.textContent = "Select All";
-                    }
+                if (selectedSports.length > 0) {
+                    fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
                 }
-                
-                // 1. Listen for individual checkbox changes
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', updateCalendarSource);
-                });
-                
-                // 2. Listen for the Master Toggle Button click
-                toggleAllBtn.addEventListener('click', function() {
-                    // Determine if we should check everything or uncheck everything
-                    // If some or none are checked, we select all. If all are checked, we unselect all.
-                    const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
-                    const shouldCheckAll = checkedBoxes.length < checkboxes.length;
-                
-                    checkboxes.forEach(cb => {
-                        cb.checked = shouldCheckAll;
-                    });
-                
-                    // Run the filter update once for the entire batch change
-                    updateCalendarSource();
-                });
+            
+                calendar.removeAllEventSources();
+                calendar.addEventSource(fetchUrl);
+            
+                if (checkedBoxes.length === checkboxes.length) {
+                    toggleAllBtn.textContent = "Unselect All";
+                } else {
+                    toggleAllBtn.textContent = "Select All";
+                }
+            }
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateCalendarSource);
             });
-        });
+            
+            toggleAllBtn.addEventListener('click', function() {
+                const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
+                const shouldCheckAll = checkedBoxes.length < checkboxes.length;
+            
+                checkboxes.forEach(cb => {
+                    cb.checked = shouldCheckAll;
+                });
+            
+                updateCalendarSource();
+            });
+        }); // FIXED: Removed the extra trailing }); that was breaking compilation
     </script>
 
 </body>
