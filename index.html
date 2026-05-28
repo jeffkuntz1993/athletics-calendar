@@ -41,7 +41,6 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* Checkbox Grid for Multi-Select */
         .checkbox-grid {
             display: flex;
             flex-wrap: wrap;
@@ -76,7 +75,6 @@
             background-color: #9e0c24;
         }
 
-        /* Loading Overlay */
         #loadingOverlay {
             display: none;
             text-align: center;
@@ -128,23 +126,23 @@
             <button class="action-btn" onclick="window.print()">🖨️ Print Schedule</button>
         </div>
         
-        <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view. Uncheck all to load the master schedule.</p>
+        <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view.</p>
         
         <div style="margin-bottom: 15px;">
-            <button type="button" id="toggleAllBtn" class="action-btn" style="background-color: var(--chiefs-black); padding: 6px 12px; font-size: 14px;">Select All</button>
+            <button type="button" id="toggleAllBtn" class="action-btn" style="background-color: var(--chiefs-black); padding: 6px 12px; font-size: 14px;">Unselect All</button>
         </div>
         
         <div class="checkbox-grid" id="sportCheckboxes">
-            <label><input type="checkbox" value="JH Football" class="sport-filter"> JH Football</label>
-            <label><input type="checkbox" value="HS Football" class="sport-filter"> HS Football</label>
-            <label><input type="checkbox" value="JH Volleyball" class="sport-filter"> JH Volleyball</label>
-            <label><input type="checkbox" value="HS Volleyball" class="sport-filter"> HS Volleyball</label>
-            <label><input type="checkbox" value="JH Basketball" class="sport-filter"> JH Basketball</label>
-            <label><input type="checkbox" value="HS Basketball" class="sport-filter"> HS Basketball</label>
-            <label><input type="checkbox" value="JH Track" class="sport-filter"> JH Track</label>
-            <label><input type="checkbox" value="HS Track" class="sport-filter"> Varsity Track</label>
-            <label><input type="checkbox" value="Softball" class="sport-filter"> Softball</label>
-            <label><input type="checkbox" value="Baseball" class="sport-filter"> Baseball</label>
+            <label><input type="checkbox" value="JH Football" class="sport-filter" checked> JH Football</label>
+            <label><input type="checkbox" value="HS Football" class="sport-filter" checked> HS Football</label>
+            <label><input type="checkbox" value="JH Volleyball" class="sport-filter" checked> JH Volleyball</label>
+            <label><input type="checkbox" value="HS Volleyball" class="sport-filter" checked> HS Volleyball</label>
+            <label><input type="checkbox" value="JH Basketball" class="sport-filter" checked> JH Basketball</label>
+            <label><input type="checkbox" value="HS Basketball" class="sport-filter" checked> HS Basketball</label>
+            <label><input type="checkbox" value="JH Track" class="sport-filter" checked> JH Track</label>
+            <label><input type="checkbox" value="HS Track" class="sport-filter" checked> Varsity Track</label>
+            <label><input type="checkbox" value="Softball" class="sport-filter" checked> Softball</label>
+            <label><input type="checkbox" value="Baseball" class="sport-filter" checked> Baseball</label>
         </div>
     </div>
 
@@ -157,7 +155,8 @@
             const calendarEl = document.getElementById('calendar');
             const loadingOverlay = document.getElementById('loadingOverlay');
             
-            const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwpoN7Wb7oRgHixmKzVGZtccOurTQQL85CzhCqp2l9Nyf0mCukVsfsHILatH2JBjhDeJA/exec';
+            // 🚨 PASTE YOUR BRAND NEW DEPLOYMENT URL HERE 🚨
+            const PROXY_URL = 'https://script.google.com/macros/s/AKfycbzo9kJoCk8AkMiY4gLfN_zACT9v7qlT3T5CW8rgsMTS-9YC7kZSruak6s8WTbuTnTRKng/exec';
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 views: {
@@ -187,23 +186,35 @@
 
             calendar.render();
 
-            // --- MULTI-FILTER LOGIC WITH TOGGLE ALL ---
             const checkboxes = document.querySelectorAll('.sport-filter');
             const toggleAllBtn = document.getElementById('toggleAllBtn');
             
             function updateCalendarSource() {
                 const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
-                let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
+                const totalBoxes = checkboxes.length;
+                
+                calendar.removeAllEventSources();
+
+                // If NOTHING is checked, empty the calendar immediately (don't hit the server)
+                if (checkedBoxes.length === 0) {
+                    calendar.addEventSource([]); 
+                    toggleAllBtn.textContent = "Select All";
+                    return; 
+                }
+
                 let fetchUrl = PROXY_URL;
                 
-                if (selectedSports.length > 0) {
+                // If only SOME boxes are checked, tell Google which ones to filter.
+                // (If ALL boxes are checked, we don't add the parameter, so Google returns everything super fast).
+                if (checkedBoxes.length < totalBoxes) {
+                    let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
                     fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
                 }
             
-                calendar.removeAllEventSources();
                 calendar.addEventSource(fetchUrl);
             
-                if (checkedBoxes.length === checkboxes.length) {
+                // Update the button text depending on if they are all checked or not
+                if (checkedBoxes.length === totalBoxes) {
                     toggleAllBtn.textContent = "Unselect All";
                 } else {
                     toggleAllBtn.textContent = "Select All";
@@ -224,7 +235,7 @@
             
                 updateCalendarSource();
             });
-        }); // FIXED: Removed the extra trailing }); that was breaking compilation
+        }); 
     </script>
 
 </body>
