@@ -3,323 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Santa Fe Chiefs Athletics</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    
+    <title>Athletics Schedule</title>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
     <style>
-        :root {
-            --chiefs-red: #a51515;
-            --chiefs-black: #000000;
-            --chiefs-gray: #f4f4f4;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f9;
+            color: #333;
         }
 
-        body { 
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            background-color: var(--chiefs-gray); 
-        }
-
-        /* --- STANDARD STYLES --- */
-        .header-bar {
-            background-color: var(--chiefs-red);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 5px solid var(--chiefs-black);
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .container { 
-            max-width: 1200px; 
-            margin: auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 4px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        }
-
-        /* Filter Section */
-        .filter-controls {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .toggle-all-btn {
-            background-color: var(--chiefs-red); 
-            color: white; 
-            border: 2px solid var(--chiefs-black);
-            padding: 8px 15px;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 4px;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-
-        .toggle-all-btn:hover {
-            background-color: var(--chiefs-black); 
-            border-color: var(--chiefs-red);
-        }
-
-        #filters { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 10px; 
-            justify-content: center; 
-            margin-bottom: 25px; 
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .filter-item { 
-            display: flex; 
-            align-items: center; 
-            background: var(--chiefs-black); 
-            color: white;
-            padding: 8px 15px; 
-            border-radius: 4px; 
-            font-size: 0.85em; 
-            cursor: pointer; 
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .filter-item input { margin-right: 10px; accent-color: var(--chiefs-red); width: 16px; height: 16px; }
-
-        /* Controls & Season Jumps */
-        .controls { 
-            display: flex; 
-            justify-content: center; 
-            margin-bottom: 15px; 
-        }
-
-        .season-jumps { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-
-        .jump-btn { 
+        select, button {
             padding: 10px 15px;
-            cursor: pointer;
-            font-weight: bold;
+            font-size: 16px;
+            border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            background-color: var(--chiefs-black); 
-            color: white; 
-            border: 2px solid var(--chiefs-red);
         }
 
-        .jump-btn:hover { background-color: var(--chiefs-red); }
-
-        /* Calendar Styling */
-        .fc-header-toolbar { text-transform: uppercase; font-weight: bold; }
-        .fc-button-primary { 
-            background-color: var(--chiefs-red) !important; 
-            border-color: var(--chiefs-red) !important; 
-        }
-        .fc-button-primary:hover { 
-            background-color: var(--chiefs-black) !important; 
-            border-color: var(--chiefs-black) !important; 
+        button {
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+            border: none;
         }
 
-        /* --- MOBILE RESPONSIVENESS STYLES --- */
-        @media (max-width: 768px) {
-            .container { padding: 15px; margin: 10px; }
-            .header-bar { padding: 15px 10px; }
-            .header-bar h1 { font-size: 1.5em; }
-            
-            .season-jumps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 100%; }
-            .jump-btn { padding: 12px 5px; font-size: 0.75em; text-align: center; }
-            
-            .fc .fc-toolbar { flex-direction: column; gap: 15px; }
-            .fc .fc-toolbar-chunk { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; }
-        }
-        
-        /* Allow event titles to wrap to multiple lines */
-        .fc-event-main {
-            white-space: normal !important;
+        button:hover {
+            background-color: #004494;
         }
 
-        .fc-event-title {
-            display: inline-block;
-            padding: 2px 4px;
-            word-wrap: break-word;
-            font-size: 0.9em; /* Slightly smaller text helps it fit better */
-            line-height: 1.2;
+        #calendar {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Ensure the event "sticker" expands to fit the wrapped text */
-        .fc-daygrid-event {
-            margin-top: 2px !important;
-            margin-bottom: 2px !important;
+        /* --- PRINT STYLES --- */
+        /* These rules only apply when the user hits Ctrl+P or clicks Print */
+        @media print {
+            body {
+                margin: 0;
+                background-color: white;
+            }
+            .controls-container {
+                display: none; /* Hide the dropdown and print button on the paper */
+            }
+            #calendar {
+                box-shadow: none;
+                padding: 0;
+            }
+            /* Hide the FullCalendar header (prev/next arrows) when printing */
+            .fc-header-toolbar {
+                display: none !important; 
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="header-bar">
-    <h1 style="margin:0;">SANTA FE CHIEFS ATHLETICS</h1>
-    <p id="academic-year-label" style="margin:5px 0 0 0; opacity: 0.9;">Official Sports Schedules</p>
-</div>
-
-<div class="container">
-    
-    <div class="filter-controls">
-        <button id="toggle-all-btn" class="toggle-all-btn">UNSELECT ALL</button>
-    </div>
-
-    <div id="filters"></div>
-
-    <div class="controls">
-        <div class="season-jumps">
-            <button class="jump-btn" onclick="handleSeasonClick('fall')">FALL VIEW</button>
-            <button class="jump-btn" onclick="handleSeasonClick('winter')">WINTER VIEW</button>
-            <button class="jump-btn" onclick="handleSeasonClick('spring')">SPRING VIEW</button>
+    <div class="controls-container">
+        <div>
+            <label for="sportFilter"><strong>Filter by Sport: </strong></label>
+            <select id="sportFilter">
+                <option value="all">All Sports (Master Schedule)</option>
+                <option value="JH Volleyball">JH Volleyball</option>
+                <option value="HS Football">HS Football</option>
+                <option value="Varsity Basketball">Varsity Basketball</option>
+            </select>
         </div>
+        <button onclick="window.print()">🖨️ Print Schedule</button>
     </div>
 
     <div id="calendar"></div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const sportFilter = document.getElementById('sportFilter');
+            
+            // 🚨 REPLACE THIS WITH YOUR NEW APPS SCRIPT WEB APP URL 🚨
+            const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyn0TioU0zScUNKcx4ru5ugmReV_LW4SESWYGkDcxdUh7hoFIzWb7jLm9wlRc8tIjx97A/exec';
 
-<script>
-    // --- CONFIGURATION ---
-    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyn0TioU0zScUNKcx4ru5ugmReV_LW4SESWYGkDcxdUh7hoFIzWb7jLm9wlRc8tIjx97A/exec';
-
-    const sports = [
-        { id: 'jh_vb', name: 'JH Volleyball', color: '#a51515' },
-        { id: 'hs_vb', name: 'HS Volleyball', color: '#000000' },
-        { id: 'jh_fb', name: 'JH Football', color: '#a51515' },
-        { id: 'hs_fb', name: 'HS Football', color: '#000000' },
-        { id: 'jh_bk', name: 'JH Basketball', color: '#a51515' },
-        { id: 'hs_bk', name: 'HS Basketball', color: '#000000' },
-        { id: 'jh_tr', name: 'JH Track', color: '#a51515' },
-        { id: 'hs_tr', name: 'HS Track', color: '#000000' },
-        { id: 'sb', name: 'Softball', color: '#a51515' },
-        { id: 'bb', name: 'Baseball', color: '#000000' }
-    ];
-
-    let calendar;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
-        const filterEl = document.getElementById('filters');
-        const toggleAllBtn = document.getElementById('toggle-all-btn');
-
-        // Set Dynamic Academic Year Label
-        const now = new Date();
-        const displayYear = (now.getMonth() >= 6) 
-            ? `${now.getFullYear()}-${now.getFullYear() + 1}` 
-            : `${now.getFullYear() - 1}-${now.getFullYear()}`;
-        document.getElementById('academic-year-label').innerText = `Official Schedules for ${displayYear}`;
-
-        // Initialize Calendar
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            dayMaxEvents: true, // This keeps the calendar height consistent
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,multiMonthYear,listMonth' 
-            },
-            views: {
-                multiMonthYear: {
-                    buttonText: 'year'
+            // Initialize the Calendar in "List Only" mode
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'listYear', // Displays a top-to-bottom list
+                height: 'auto', // Prevents internal scrollbars so it prints nicely
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: '' // Leaving this empty removes the month/week view buttons completely
                 },
-                fallView: {
-                    type: 'multiMonth',
-                    duration: { months: 5 } // July - November
-                },
-                winterView: {
-                    type: 'multiMonth',
-                    duration: { months: 5 } // November - March
-                },
-                springView: {
-                    type: 'multiMonth',
-                    duration: { months: 4 } // March - June
-                }
-            }
-        });
-
-        // Create Checkboxes and Load Data
-        sports.forEach(sport => {
-            const div = document.createElement('div');
-            div.className = 'filter-item';
-            div.innerHTML = `<input type="checkbox" id="${sport.id}" checked> <label for="${sport.id}">${sport.name}</label>`;
-            filterEl.appendChild(div);
-
-            const sourceUrl = `${PROXY_URL}?sport=${encodeURIComponent(sport.name)}`;
-
-            calendar.addEventSource({
-                id: sport.id,
-                url: sourceUrl,
-                backgroundColor: sport.color,
-                borderColor: sport.color
+                events: PROXY_URL, // Load the master schedule on first load
+                noEventsText: 'No games scheduled for this timeframe.',
             });
 
-            // Standard individual checkbox logic
-            div.querySelector('input').addEventListener('change', function() {
-                if (this.checked) {
-                    calendar.addEventSource({ id: sport.id, url: sourceUrl, backgroundColor: sport.color, borderColor: sport.color });
-                } else {
-                    const source = calendar.getEventSourceById(sport.id);
-                    if (source) source.remove();
+            calendar.render();
+
+            // --- FILTER LOGIC ---
+            // Listen for changes on the dropdown menu
+            sportFilter.addEventListener('change', function() {
+                const selectedSport = this.value;
+                let fetchUrl = PROXY_URL;
+                
+                // If a specific sport is chosen, append the query parameter for your Apps Script
+                if (selectedSport !== 'all') {
+                    fetchUrl += '?sport=' + encodeURIComponent(selectedSport);
                 }
+
+                // Swap out the data source in the calendar
+                calendar.removeAllEventSources();
+                calendar.addEventSource(fetchUrl);
             });
         });
-
-        // Listen for ANY checkbox change inside filters to smartly update the button text
-        filterEl.addEventListener('change', function() {
-            const checkedCount = document.querySelectorAll('.filter-item input:checked').length;
-            if (checkedCount === 0) {
-                toggleAllBtn.innerText = 'SELECT ALL';
-            } else if (checkedCount === sports.length) {
-                toggleAllBtn.innerText = 'UNSELECT ALL';
-            }
-        });
-
-        // Toggle All Button Logic
-        toggleAllBtn.addEventListener('click', function() {
-            // Determine our goal based on what the button currently says
-            const isUnselecting = (this.innerText === 'UNSELECT ALL');
-            const targetState = !isUnselecting; 
-
-            // Update button text immediately
-            this.innerText = targetState ? 'UNSELECT ALL' : 'SELECT ALL';
-
-            sports.forEach(sport => {
-                const checkbox = document.getElementById(sport.id);
-                // Only toggle if it needs to change
-                if (checkbox.checked !== targetState) {
-                    checkbox.checked = targetState;
-                    // Programmatically trigger the 'change' event so the calendar updates
-                    checkbox.dispatchEvent(new Event('change'));
-                }
-            });
-        });
-
-        calendar.render();
-    });
-
-    // Seasonal Jump Logic 
-    function handleSeasonClick(season) {
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        if (season === 'fall') {
-            const targetYear = (currentMonth >= 6) ? currentYear : currentYear - 1;
-            calendar.changeView('fallView', `${targetYear}-07-01`); 
-        } else if (season === 'winter') {
-            const targetYear = (currentMonth >= 6) ? currentYear : currentYear - 1;
-            calendar.changeView('winterView', `${targetYear}-11-01`); 
-        } else if (season === 'spring') {
-            const targetYear = (currentMonth >= 6) ? currentYear + 1 : currentYear;
-            calendar.changeView('springView', `${targetYear}-03-01`); 
-        }
-    }
-</script>
+    </script>
 
 </body>
 </html>
