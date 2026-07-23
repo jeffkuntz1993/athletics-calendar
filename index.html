@@ -5,180 +5,842 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa Fe Chiefs - Athletics Schedule</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FullCalendar CSS & JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
-        /* --- SCHOOL COLOR VARIABLES --- */
+        /* --- BRAND DESIGN SYSTEM --- */
         :root {
             --chiefs-red: #C8102E; 
-            --chiefs-black: #000000;
+            --chiefs-red-dark: #9e0c24;
+            --chiefs-red-light: rgba(200, 16, 46, 0.08);
+            --chiefs-red-glow: rgba(200, 16, 46, 0.25);
+            --chiefs-black: #0f1115;
+            --chiefs-black-surface: #181b22;
             --chiefs-white: #FFFFFF;
-            --page-bg: #f4f4f9;
+            
+            --page-bg: #f4f6f9;
+            --card-bg: #FFFFFF;
+            --text-primary: #0f1115;
+            --text-secondary: #5a6578;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 16px -2px rgba(15, 17, 21, 0.08), 0 4px 6px -1px rgba(15, 17, 21, 0.04);
+            --shadow-lg: 0 20px 25px -5px rgba(15, 17, 21, 0.1), 0 10px 10px -5px rgba(15, 17, 21, 0.04);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-full: 9999px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             background-color: var(--page-bg);
-            color: var(--chiefs-black);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .controls-container {
-            background: var(--chiefs-white);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            border-top: 5px solid var(--chiefs-red);
+        /* --- HEADER & BRANDING --- */
+        .app-header {
+            background: linear-gradient(135deg, var(--chiefs-black) 0%, var(--chiefs-black-surface) 100%);
+            color: var(--chiefs-white);
+            padding: 32px 24px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border-bottom: 4px solid var(--chiefs-red);
         }
 
-        .controls-header {
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .checkbox-grid {
-            display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .checkbox-grid label {
-            cursor: pointer;
-            background: #eee;
-            padding: 8px 12px;
-            border-radius: 4px;
-            user-select: none;
-            transition: background 0.2s;
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
-        .checkbox-grid label:hover {
-            background: #ddd;
+        .brand-icon-wrapper {
+            width: 54px;
+            height: 54px;
+            background: var(--chiefs-red);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--chiefs-red-glow);
+            flex-shrink: 0;
         }
 
-        .action-btn {
-            background-color: var(--chiefs-red);
+        .brand-icon-wrapper svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--chiefs-white);
+        }
+
+        .brand-titles h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             color: var(--chiefs-white);
-            padding: 10px 15px;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .action-btn:hover {
-            background-color: #9e0c24;
-        }
-
-        #loadingOverlay {
-            display: none;
-            text-align: center;
-            padding: 20px;
+        .brand-tag {
             background: var(--chiefs-red);
             color: var(--chiefs-white);
-            font-weight: bold;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            animation: pulse 1.5s infinite;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            line-height: 1;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
+        .brand-titles p {
+            margin: 4px 0 0 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        #calendar {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* --- MAIN LAYOUT CONTAINER --- */
+        .main-container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- CONTROLS PANEL --- */
+        .controls-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .controls-header-bar {
+            padding: 18px 24px;
+            background: #fafbfc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .controls-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-title-group h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--chiefs-black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-count {
+            background: var(--chiefs-red-light);
+            color: var(--chiefs-red);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(200, 16, 46, 0.2);
+        }
+
+        .quick-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            background: #edf1f7;
+            color: var(--text-secondary);
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .preset-btn:hover {
+            background: var(--chiefs-black);
+            color: var(--chiefs-white);
+        }
+
+        .preset-btn.active-dark {
+            background: var(--chiefs-black);
+            color: var(--chiefs-white);
+        }
+
+        .mobile-filter-toggle {
+            display: none;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controls-body {
+            padding: 20px 24px;
+        }
+
+        /* --- PILL CHECKBOX GRID --- */
+        .pills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .pill-item {
+            position: relative;
+            user-select: none;
+        }
+
+        .pill-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .pill-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pill-checkbox-indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid #cbd5e1;
             background: var(--chiefs-white);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
         }
 
-        .fc .fc-list-event:hover td {
-            background-color: #fcebeb;
+        .pill-checkbox-indicator svg {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: var(--chiefs-white);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: var(--transition);
         }
-        .fc .fc-list-day-cushion {
-            background-color: var(--chiefs-black) !important;
+
+        .pill-item:hover .pill-label {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+
+        .pill-item input[type="checkbox"]:checked + .pill-label {
+            background: var(--chiefs-white);
+            border-color: var(--chiefs-red);
+            color: var(--chiefs-black);
+            box-shadow: 0 2px 8px rgba(200, 16, 46, 0.12);
+        }
+
+        .pill-item input[type="checkbox"]:checked + .pill-label .pill-checkbox-indicator {
+            background: var(--chiefs-red);
+            border-color: var(--chiefs-red);
+        }
+
+        .pill-item input[type="checkbox"]:checked + .pill-label .pill-checkbox-indicator svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            line-height: 1.2;
+        }
+
+        .btn-primary {
+            background-color: var(--chiefs-red);
+            color: var(--chiefs-white);
+            box-shadow: 0 4px 12px var(--chiefs-red-glow);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--chiefs-red-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--chiefs-white);
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* --- LOADING OVERLAY BAR --- */
+        #loadingOverlay {
+            display: none;
+            background: linear-gradient(90deg, var(--chiefs-red) 0%, var(--chiefs-red-dark) 100%);
+            color: var(--chiefs-white);
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+            animation: pulseBanner 2s infinite ease-in-out;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--chiefs-white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseBanner {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 1; filter: brightness(1.1); }
+        }
+
+        /* --- CALENDAR CARD CONTAINER --- */
+        .calendar-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            min-height: 500px;
+        }
+
+        /* --- FULLCALENDAR OVERRIDES & STYLING --- */
+        .fc {
+            --fc-border-color: #e2e8f0;
+            --fc-button-bg-color: #f1f5f9;
+            --fc-button-border-color: #cbd5e1;
+            --fc-button-text-color: var(--chiefs-black);
+            --fc-button-hover-bg-color: var(--chiefs-black);
+            --fc-button-hover-border-color: var(--chiefs-black);
+            --fc-button-active-bg-color: var(--chiefs-red);
+            --fc-button-active-border-color: var(--chiefs-red);
+            --fc-event-bg-color: var(--chiefs-red);
+            --fc-event-border-color: var(--chiefs-red);
+            font-family: inherit;
+        }
+
+        .fc .fc-toolbar {
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px !important;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--chiefs-black);
+            letter-spacing: -0.01em;
+        }
+
+        .fc .fc-button {
+            border-radius: var(--radius-md) !important;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            padding: 8px 16px !important;
+            box-shadow: none !important;
+            transition: var(--transition) !important;
+            text-transform: capitalize !important;
+        }
+
+        .fc .fc-button-primary:hover {
             color: var(--chiefs-white) !important;
         }
 
+        .fc .fc-button-primary:not(:disabled).fc-button-active, 
+        .fc .fc-button-primary:not(:disabled):active {
+            background-color: var(--chiefs-red) !important;
+            border-color: var(--chiefs-red) !important;
+            color: var(--chiefs-white) !important;
+            box-shadow: 0 4px 10px var(--chiefs-red-glow) !important;
+        }
+
+        .fc .fc-list-day-cushion {
+            background-color: var(--chiefs-black) !important;
+            color: var(--chiefs-white) !important;
+            padding: 10px 16px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em;
+        }
+
+        .fc .fc-list-day-text, .fc .fc-list-day-side-text {
+            color: var(--chiefs-white) !important;
+            font-size: 14px;
+        }
+
+        .fc .fc-list-event:hover td {
+            background-color: var(--chiefs-red-light) !important;
+        }
+
+        .fc .fc-list-event-dot {
+            border-color: var(--chiefs-red) !important;
+            border-width: 5px !important;
+        }
+
+        .fc .fc-list-event-title a {
+            color: var(--chiefs-black) !important;
+            font-weight: 600;
+            text-decoration: none !important;
+        }
+
+        .fc-theme-standard td, .fc-theme-standard th {
+            border-color: var(--border-color);
+        }
+
+        .fc .fc-daygrid-day-number {
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
+        .fc .fc-daygrid-day.fc-day-today {
+            background-color: var(--chiefs-red-light) !important;
+        }
+
+        .fc .fc-no-events-text {
+            padding: 40px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* --- FOOTER --- */
+        .app-footer {
+            max-width: 1200px;
+            margin: 20px auto 40px auto;
+            padding: 0 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 20px 16px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+            }
+
+            .main-container {
+                padding: 0 12px;
+                margin: 16px auto;
+                gap: 16px;
+            }
+
+            .controls-card {
+                border-radius: var(--radius-md);
+            }
+
+            .mobile-filter-toggle {
+                display: flex;
+            }
+
+            .controls-body {
+                display: none; /* Collapsible on mobile */
+                padding: 16px;
+            }
+
+            .controls-body.expanded {
+                display: block;
+            }
+
+            .controls-header-bar {
+                padding: 14px 16px;
+            }
+
+            .pills-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .pill-label {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .calendar-card {
+                padding: 14px;
+                border-radius: var(--radius-md);
+            }
+
+            .fc .fc-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .fc .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- PRINT STYLESHEET --- */
         @media print {
-            body { margin: 0; background-color: white; }
-            .controls-container, #loadingOverlay { display: none !important; }
-            #calendar { box-shadow: none; padding: 0; }
-            .fc-header-toolbar { display: none !important; }
-            .fc .fc-list-day-cushion { background-color: #ddd !important; color: black !important; }
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0;
+            }
+
+            .app-header, 
+            .controls-card, 
+            #loadingOverlay,
+            .app-footer,
+            .fc-header-toolbar {
+                display: none !important;
+            }
+
+            .main-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .calendar-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .fc .fc-list-day-cushion {
+                background-color: #f1f5f9 !important;
+                color: black !important;
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .fc .fc-list-day-text, .fc .fc-list-day-side-text {
+                color: black !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="controls-container">
-        <div class="controls-header">
-            <h2 style="margin: 0;">Santa Fe Athletics Schedule</h2>
-            <button class="action-btn" onclick="window.print()">🖨️ Print Schedule</button>
+    <!-- BRAND HEADER -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <div class="brand-icon-wrapper">
+                    <!-- Athletics Trophy / Shield Icon -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm0 4a3 3 0 0 1 3 3c0 2.2-2.5 5.5-3 6.1-.5-.6-3-3.9-3-6.1a3 3 0 0 1 3-3z"/>
+                    </svg>
+                </div>
+                <div class="brand-titles">
+                    <h1>Santa Fe Chiefs <span class="brand-tag">Athletics</span></h1>
+                    <p>Official Sports Schedule & Event Directory</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Print Schedule
+                </button>
+            </div>
         </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <div class="main-container">
         
-        <p style="margin-top: 0; font-size: 0.9em; color: #666;">Select the sports you want to view.</p>
-        
-        <div style="margin-bottom: 15px;">
-            <button type="button" id="toggleAllBtn" class="action-btn" style="background-color: var(--chiefs-black); padding: 6px 12px; font-size: 14px;">Unselect All</button>
+        <!-- CONTROLS CARD -->
+        <section class="controls-card">
+            
+            <div class="controls-header-bar">
+                <div class="controls-title-group">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--chiefs-red)" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Filter Sports
+                    </h2>
+                    <span class="badge-count" id="activeFilterCount">10 Selected</span>
+                </div>
+
+                <div class="quick-presets">
+                    <button type="button" class="preset-btn" id="presetAll">All</button>
+                    <button type="button" class="preset-btn" id="presetHS">High School</button>
+                    <button type="button" class="preset-btn" id="presetJH">Junior High</button>
+                    <button type="button" class="preset-btn" id="presetNone">Clear</button>
+                </div>
+            </div>
+
+            <!-- Mobile accordion toggle button -->
+            <button class="mobile-filter-toggle" id="mobileFilterToggle" type="button">
+                <span>Sports Filter Options</span>
+                <svg id="toggleChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+
+            <div class="controls-body" id="controlsBody">
+                <div class="pills-grid" id="sportCheckboxes">
+                    
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-jh-football" value="JH Football" class="sport-filter" checked>
+                        <label for="sport-jh-football" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>JH Football</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-hs-football" value="HS Football" class="sport-filter" checked>
+                        <label for="sport-hs-football" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>HS Football</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-jh-volleyball" value="JH Volleyball" class="sport-filter" checked>
+                        <label for="sport-jh-volleyball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>JH Volleyball</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-hs-volleyball" value="HS Volleyball" class="sport-filter" checked>
+                        <label for="sport-hs-volleyball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>HS Volleyball</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-jh-basketball" value="JH Basketball" class="sport-filter" checked>
+                        <label for="sport-jh-basketball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>JH Basketball</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-hs-basketball" value="HS Basketball" class="sport-filter" checked>
+                        <label for="sport-hs-basketball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>HS Basketball</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-jh-track" value="JH Track" class="sport-filter" checked>
+                        <label for="sport-jh-track" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>JH Track</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-hs-track" value="HS Track" class="sport-filter" checked>
+                        <label for="sport-hs-track" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>HS Track</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-softball" value="Softball" class="sport-filter" checked>
+                        <label for="sport-softball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>Softball</span>
+                        </label>
+                    </div>
+
+                    <div class="pill-item">
+                        <input type="checkbox" id="sport-baseball" value="Baseball" class="sport-filter" checked>
+                        <label for="sport-baseball" class="pill-label">
+                            <span class="pill-checkbox-indicator"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            <span>Baseball</span>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- LOADING INDICATOR -->
+        <div id="loadingOverlay">
+            <div class="spinner"></div>
+            <span>Syncing latest schedule data...</span>
         </div>
-        
-        <div class="checkbox-grid" id="sportCheckboxes">
-            <label><input type="checkbox" value="JH Football" class="sport-filter" checked> JH Football</label>
-            <label><input type="checkbox" value="HS Football" class="sport-filter" checked> HS Football</label>
-            <label><input type="checkbox" value="JH Volleyball" class="sport-filter" checked> JH Volleyball</label>
-            <label><input type="checkbox" value="HS Volleyball" class="sport-filter" checked> HS Volleyball</label>
-            <label><input type="checkbox" value="JH Basketball" class="sport-filter" checked> JH Basketball</label>
-            <label><input type="checkbox" value="HS Basketball" class="sport-filter" checked> HS Basketball</label>
-            <label><input type="checkbox" value="JH Track" class="sport-filter" checked> JH Track</label>
-            <label><input type="checkbox" value="HS Track" class="sport-filter" checked> HS Track</label>
-            <label><input type="checkbox" value="Softball" class="sport-filter" checked> Softball</label>
-            <label><input type="checkbox" value="Baseball" class="sport-filter" checked> Baseball</label>
-        </div>
+
+        <!-- CALENDAR DISPLAY CONTAINER -->
+        <main class="calendar-card">
+            <div id="calendar"></div>
+        </main>
+
     </div>
 
-    <div id="loadingOverlay">⏳ Syncing latest schedule data...</div>
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <p>&copy; Santa Fe Chiefs Athletics. All schedules are subject to change. Powered by FullCalendar & Google Services.</p>
+    </footer>
 
-    <div id="calendar"></div>
-
+    <!-- LOGIC -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
             const loadingOverlay = document.getElementById('loadingOverlay');
+            const activeFilterCount = document.getElementById('activeFilterCount');
+            const checkboxes = document.querySelectorAll('.sport-filter');
             
-            // 🚨 PASTE YOUR BRAND NEW DEPLOYMENT URL HERE 🚨
+            // Mobile Filter Drawer Toggle
+            const mobileFilterToggle = document.getElementById('mobileFilterToggle');
+            const controlsBody = document.getElementById('controlsBody');
+            const toggleChevron = document.getElementById('toggleChevron');
+
+            mobileFilterToggle.addEventListener('click', function() {
+                const isExpanded = controlsBody.classList.toggle('expanded');
+                toggleChevron.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+
+            // Google Apps Script Proxy Endpoint
             const PROXY_URL = 'https://script.google.com/macros/s/AKfycbzKu6LS202B_W04gZmJe0iNH95UjiyS8AFcH7iD-kklh5qZY4_CyT3pZV4aRU8WPyI-Qg/exec';
+
+            // Determine view based on initial screen size
+            const isMobile = window.innerWidth <= 768;
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 views: {
                     listTwoYear: {
                         type: 'list',
-                        duration: { years: 2 } 
+                        duration: { years: 2 },
+                        buttonText: 'List View'
+                    },
+                    dayGridMonth: {
+                        buttonText: 'Month View'
                     }
                 },
                 initialView: 'listTwoYear',
                 displayEventEnd: false,
-                height: 'auto', 
+                height: 'auto',
                 headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: '' 
+                    left: isMobile ? 'title' : 'prev,today,next',
+                    center: isMobile ? 'prev,today,next' : 'title',
+                    right: 'listTwoYear,dayGridMonth'
                 },
-                events: PROXY_URL, 
-                noEventsText: 'No games scheduled for the selected filters.',
+                events: PROXY_URL,
+                noEventsText: 'No games scheduled for the selected sport filters.',
                 
                 loading: function(isLoading) {
                     if (isLoading) {
-                        loadingOverlay.style.display = 'block';
+                        loadingOverlay.style.display = 'flex';
                     } else {
                         loadingOverlay.style.display = 'none';
                     }
@@ -187,55 +849,68 @@
 
             calendar.render();
 
-            const checkboxes = document.querySelectorAll('.sport-filter');
-            const toggleAllBtn = document.getElementById('toggleAllBtn');
-            
             function updateCalendarSource() {
                 const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
                 const totalBoxes = checkboxes.length;
                 
+                // Update Badge Count text
+                if (checkedBoxes.length === totalBoxes) {
+                    activeFilterCount.textContent = 'All Sports Selected';
+                } else if (checkedBoxes.length === 0) {
+                    activeFilterCount.textContent = '0 Selected';
+                } else {
+                    activeFilterCount.textContent = `${checkedBoxes.length} of ${totalBoxes} Selected`;
+                }
+
                 calendar.removeAllEventSources();
 
-                // If NOTHING is checked, empty the calendar immediately (don't hit the server)
+                // If NOTHING is checked, empty calendar immediately
                 if (checkedBoxes.length === 0) {
                     calendar.addEventSource([]); 
-                    toggleAllBtn.textContent = "Select All";
                     return; 
                 }
 
                 let fetchUrl = PROXY_URL;
                 
-                // If only SOME boxes are checked, tell Google which ones to filter.
-                // (If ALL boxes are checked, we don't add the parameter, so Google returns everything super fast).
+                // If only SOME boxes are checked, add query parameters
                 if (checkedBoxes.length < totalBoxes) {
                     let selectedSports = Array.from(checkedBoxes).map(cb => cb.value);
                     fetchUrl += '?sport=' + encodeURIComponent(selectedSports.join(','));
                 }
             
                 calendar.addEventSource(fetchUrl);
-            
-                // Update the button text depending on if they are all checked or not
-                if (checkedBoxes.length === totalBoxes) {
-                    toggleAllBtn.textContent = "Unselect All";
-                } else {
-                    toggleAllBtn.textContent = "Select All";
-                }
             }
             
+            // Register event handlers on sport checkboxes
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateCalendarSource);
             });
-            
-            toggleAllBtn.addEventListener('click', function() {
-                const checkedBoxes = document.querySelectorAll('.sport-filter:checked');
-                const shouldCheckAll = checkedBoxes.length < checkboxes.length;
-            
-                checkboxes.forEach(cb => {
-                    cb.checked = shouldCheckAll;
-                });
-            
+
+            // Quick Preset Buttons
+            document.getElementById('presetAll').addEventListener('click', function() {
+                checkboxes.forEach(cb => cb.checked = true);
                 updateCalendarSource();
             });
+
+            document.getElementById('presetNone').addEventListener('click', function() {
+                checkboxes.forEach(cb => cb.checked = false);
+                updateCalendarSource();
+            });
+
+            document.getElementById('presetHS').addEventListener('click', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = cb.value.startsWith('HS') || cb.value === 'Softball' || cb.value === 'Baseball';
+                });
+                updateCalendarSource();
+            });
+
+            document.getElementById('presetJH').addEventListener('click', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = cb.value.startsWith('JH');
+                });
+                updateCalendarSource();
+            });
+
         }); 
     </script>
 
