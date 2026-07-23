@@ -660,11 +660,11 @@
             }
         }
 
-        /* --- MULTI-MONTH PRINT STYLESHEET --- */
+        /* --- MULTI-MONTH & GRID PRINT STYLESHEET --- */
         @media print {
             @page {
                 size: portrait;
-                margin: 12mm 10mm;
+                margin: 10mm 8mm;
             }
 
             body {
@@ -672,7 +672,7 @@
                 color: black !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                font-size: 12pt;
+                font-size: 11pt;
             }
 
             .app-header, 
@@ -689,25 +689,26 @@
                 justify-content: space-between;
                 border-bottom: 3px solid var(--chiefs-red);
                 padding-bottom: 12px;
-                margin-bottom: 20px;
+                margin-bottom: 16px;
             }
 
             .print-logo {
-                height: 60px;
+                height: 65px;
                 width: auto;
             }
 
             .print-title-group h1 {
                 margin: 0;
-                font-size: 20px;
+                font-size: 22px;
                 font-weight: 800;
                 color: #000;
             }
 
             .print-title-group p {
-                margin: 2px 0 0 0;
+                margin: 4px 0 0 0;
                 font-size: 12px;
-                color: #555;
+                color: #444;
+                font-weight: 600;
             }
 
             .main-container {
@@ -723,7 +724,45 @@
                 background: transparent !important;
             }
 
-            /* Month Banners in Print View */
+            /* --- FULLCALENDAR GRID PRINTING FIXES --- */
+            /* Prevent scrollers from clipping table rows or splitting weeks */
+            .fc, .fc-view-harness, .fc-scroller, .fc-scroller-liquid-absolute, .fc-scroller-harness {
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                position: static !important;
+            }
+
+            .fc-scrollgrid, .fc-scrollgrid-sync-table, .fc-daygrid-body {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            /* Prevent week rows and day cells from slicing across page break */
+            .fc-scrollgrid-sync-table tr,
+            .fc-daygrid-body tr,
+            .fc-daygrid-week,
+            .fc-daygrid-day-frame,
+            .fc-daygrid-day {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                -webkit-column-break-inside: avoid !important;
+            }
+
+            .fc-col-header-cell {
+                background-color: #000000 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 6px 0 !important;
+            }
+
+            .fc-col-header-cell a {
+                color: #ffffff !important;
+                text-decoration: none !important;
+            }
+
+            /* Month Banners in List Print View */
             .month-header-row {
                 break-before: auto;
                 break-inside: avoid;
@@ -785,7 +824,7 @@
     <!-- PRINT-ONLY HEADER -->
     <div class="print-only-header">
         <div class="print-title-group">
-            <h1>Santa Fe Chiefs - Athletics Schedule</h1>
+            <h1 id="printHeaderTitle">Santa Fe Chiefs - Athletics Schedule</h1>
             <p id="printFilterSummary">Official Multi-Month Sports Calendar</p>
         </div>
         <img src="logo_santafechiefs.png" alt="Santa Fe Chiefs Logo" class="print-logo">
@@ -951,6 +990,7 @@
             const calendarEl = document.getElementById('calendar');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const activeFilterCount = document.getElementById('activeFilterCount');
+            const printHeaderTitle = document.getElementById('printHeaderTitle');
             const printFilterSummary = document.getElementById('printFilterSummary');
             const checkboxes = document.querySelectorAll('.sport-filter');
             
@@ -994,6 +1034,14 @@
                 events: PROXY_URL,
                 noEventsText: 'No games scheduled for the selected sport filters.',
                 
+                datesSet: function(info) {
+                    // Update print title with active view's month/title (e.g. "September 2026")
+                    if (printHeaderTitle) {
+                        printHeaderTitle.textContent = 'Santa Fe Chiefs Athletics - ' + info.view.title;
+                    }
+                    setTimeout(injectMonthBanners, 100);
+                },
+
                 loading: function(isLoading) {
                     if (isLoading) {
                         loadingOverlay.style.display = 'flex';
@@ -1054,14 +1102,14 @@
                 // Update Badge Count text & Print Header summary
                 if (checkedBoxes.length === totalBoxes) {
                     activeFilterCount.textContent = 'All Sports Selected';
-                    printFilterSummary.textContent = 'Multi-Month Athletics Schedule - All Sports';
+                    printFilterSummary.textContent = 'Schedule Directory - All Sports';
                 } else if (checkedBoxes.length === 0) {
                     activeFilterCount.textContent = '0 Selected';
-                    printFilterSummary.textContent = 'Multi-Month Athletics Schedule - No Sports Selected';
+                    printFilterSummary.textContent = 'Schedule Directory - No Sports Selected';
                 } else {
                     const names = Array.from(checkedBoxes).map(cb => cb.value).join(', ');
                     activeFilterCount.textContent = `${checkedBoxes.length} of ${totalBoxes} Selected`;
-                    printFilterSummary.textContent = `Multi-Month Athletics Schedule (${names})`;
+                    printFilterSummary.textContent = `Schedule Directory (${names})`;
                 }
 
                 calendar.removeAllEventSources();
